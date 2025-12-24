@@ -1,0 +1,124 @@
+/* --- 1. Variables --- */
+:root {
+    --bg-color: #f3f4f6; --card-bg: #ffffff; --text-color: #1f2937;
+    --primary-color: #4f46e5; --secondary-text: #6b7280; --border-color: #e5e7eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --upload-bg: #eef2ff; --upload-border: #4f46e5;
+    --nav-bg: rgba(255, 255, 255, 0.9); --nav-border: #e5e7eb;
+    --error-bg: #fee2e2; --error-text: #b91c1c; --input-bg: #ffffff; --input-color: #1f2937; --input-border: #d1d5db;
+    --footer-bg: #ffffff; --table-hover-bg: rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] {
+    --bg-color: #111827; --card-bg: #1f2937; --text-color: #f9fafb;
+    --primary-color: #818cf8; --secondary-text: #9ca3af; --border-color: #374151;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); --upload-bg: #374151; --upload-border: #818cf8;
+    --nav-bg: rgba(31, 41, 55, 0.9); --nav-border: #374151;
+    --error-bg: #7f1d1d; --error-text: #fecaca; --input-bg: #374151; --input-color: #f9fafb; --input-border: #4b5563;
+    --footer-bg: #1f2937; --table-hover-bg: rgba(255,255,255,0.05);
+}
+
+/* --- 2. Global Resets --- */
+body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s ease, color 0.3s ease; min-height: 100vh; display: flex; flex-direction: column; padding-top: 80px; }
+
+/* Login */
+.login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
+.login-card { background-color: var(--card-bg); padding: 2.5rem; border-radius: 1.5rem; width: 100%; max-width: 400px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.login-logo { background-color: var(--primary-color); color: white; width: 60px; height: 60px; border-radius: 12px; font-size: 1.5rem; font-weight: 800; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; }
+
+/* Forms & Modals Overrides for Dark Mode */
+.form-control, .form-select { background-color: var(--input-bg); color: var(--input-color); border-color: var(--input-border); }
+.form-control:focus, .form-select:focus { background-color: var(--input-bg); color: var(--input-color); border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); }
+.modal-content { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+.modal-header, .modal-footer { border-color: var(--border-color); }
+.btn-close { filter: invert(var(--invert-close, 0)); }
+[data-theme="dark"] { --invert-close: 1; }
+
+/* Navbar */
+.custom-navbar { background-color: var(--nav-bg); border-bottom: 1px solid var(--nav-border); backdrop-filter: blur(10px); padding: 0.75rem 0; }
+.logo-box { background-color: var(--primary-color); color: white; width: 40px; height: 40px; border-radius: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
+.brand-text { font-weight: 700; font-size: 1.1rem; color: var(--text-color); }
+.nav-theme-btn { background: none; border: none; color: var(--text-color); font-size: 1.2rem; padding: 5px 10px; transition: 0.3s; cursor: pointer; }
+.nav-theme-btn:hover { color: var(--primary-color); }
+
+/* Dashboard */
+.dashboard-container { max-width: 1200px; margin: 0 auto; padding: 2rem; width: 100%; flex: 1; }
+.header-title h1 { font-weight: 800; letter-spacing: -0.03em; }
+.stat-card { background-color: var(--card-bg); padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.2s; }
+.stat-card:hover { transform: translateY(-3px); }
+.icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+.icon-blue { background: rgba(79,70,229,0.1); color: #4f46e5; }
+.icon-green { background: rgba(16,185,129,0.1); color: #10b981; }
+.icon-red { background: rgba(239,68,68,0.1); color: #ef4444; }
+.upload-area { background-color: var(--card-bg); border: 2px dashed var(--border-color); border-radius: 1rem; padding: 3rem; text-align: center; cursor: pointer; margin-bottom: 2rem; transition: 0.3s; }
+.upload-area:hover { border-color: var(--upload-border); background-color: var(--upload-bg); }
+.upload-icon { font-size: 3rem; color: var(--secondary-text); margin-bottom: 1rem; }
+
+/* Table Overrides for Dark Mode */
+.table-container { background-color: var(--card-bg) !important; border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); overflow: hidden; }
+.table { color: var(--text-color) !important; --bs-table-color: var(--text-color); --bs-table-bg: transparent; }
+.table th, .table td, .table tr { border-color: var(--border-color) !important; color: var(--text-color) !important; }
+.table thead th { background-color: var(--bg-color) !important; color: var(--secondary-text) !important; border-bottom: 2px solid var(--border-color) !important; }
+.table-hover tbody tr:hover { background-color: var(--table-hover-bg) !important; color: var(--text-color); }
+
+/* Badges & Inputs */
+.badge-custom { padding: 0.35em 0.8em; border-radius: 999px; font-size: 0.85em; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; }
+.badge-ot { background-color: rgba(16,185,129,0.2); color: #10b981; }
+.badge-deficit { background-color: rgba(239,68,68,0.2); color: #ef4444; }
+.badge-neutral { background-color: rgba(107,114,128,0.2); color: #6b7280; }
+.search-box { position: relative; max-width: 300px; }
+.search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--secondary-text); }
+.search-box input { padding-left: 40px; border-radius: 20px; background-color: var(--input-bg); color: var(--input-color); border: 1px solid var(--border-color); }
+.chart-container { position: relative; height: 250px; width: 100%; }
+.app-footer { background-color: var(--footer-bg); border-top: 1px solid var(--border-color); padding: 1.5rem 0; margin-top: auto; text-align: center; color: var(--secondary-text); }
+.app-footer strong { color: var(--primary-color); }
+
+/* Sidebar */
+.salary-sidebar { position: fixed; top: 80px; right: -400px; width: 350px; height: calc(100vh - 80px); background-color: #1f2937; color: #fff; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.3s ease-in-out; z-index: 1000; display: flex; flex-direction: column; border-left: 1px solid #374151; }
+.salary-sidebar.active { right: 0; }
+.sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; background: #111827; }
+.sidebar-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
+.sidebar-footer { padding: 1.5rem; border-top: 1px solid #374151; background: #111827; }
+.emp-info-card { text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; }
+.emp-avatar { width: 60px; height: 60px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 10px auto; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-item { background: #111827; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #374151; }
+.stat-item label { display: block; font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; }
+.stat-item span { font-weight: bold; font-size: 1rem; }
+.results-box { background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); }
+body.sidebar-open .dashboard-container { margin-right: 350px; transition: margin-right 0.3s ease-in-out; }
+@media (max-width: 992px) { body.sidebar-open .dashboard-container { margin-right: 0; } .salary-sidebar { width: 100%; top: 0; height: 100vh; z-index: 9999; } }
+
+/* A4 & Master Sheet Styles */
+.payslip-container.a4-format { font-family: 'Times New Roman', serif; color: #000; background: #fff; padding: 30px; }
+.report-logo-img { height: 70px; width: auto; object-fit: contain; }
+.payslip-company { font-size: 30px; letter-spacing: 1px; font-weight: 800; }
+.report-box { background: #fff; border-color: #dee2e6 !important; min-height: 90px; }
+.report-summary { background-color: #f8f9fa !important; border: 1px solid #000 !important; }
+.emp-badge { margin-left: 5px; cursor: help; font-size: 0.9em; }
+
+/* Master Sheet Landscape */
+.landscape-sheet { width: 100%; font-family: 'Times New Roman', serif; color: #000; }
+.landscape-sheet table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+.landscape-sheet th, .landscape-sheet td { border: 1px solid #000; padding: 8px; text-align: center; }
+.landscape-sheet th { background-color: #eee !important; -webkit-print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+
+@media print {
+    @page { size: auto; margin: 5mm; }
+    /* Class for Landscape */
+    @page.landscape { size: landscape; }
+    
+    body * { visibility: hidden; }
+    #reportModal, #reportModal * { visibility: visible; }
+    #reportModal { position: absolute; left: 0; top: 0; width: 100%; height: 100%; margin: 0; padding: 0; background: white; overflow: visible; }
+    .modal-dialog { max-width: 100%; margin: 0; }
+    .modal-content { border: none; box-shadow: none; }
+    
+    /* Individual Slip (Portrait) */
+    .payslip-container.a4-format { width: 210mm; min-height: 297mm; padding: 20mm; margin: 0 auto; box-sizing: border-box; page-break-after: always; }
+    
+    /* Master Sheet (Landscape) */
+    .landscape-sheet { width: 100%; padding: 10px; }
+    
+    .modal-header, .modal-footer, .btn-close { display: none !important; }
+    .report-summary, .landscape-sheet th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

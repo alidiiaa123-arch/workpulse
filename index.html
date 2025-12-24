@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workpulse</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <img class="w-100 h-100 border-1 logo-box login-logo" src="logo/WhatsApp Image 2025-12-22 at 2.52.42 AM.jpeg" alt="">
+                <h3>Workpulse</h3>
+                <p class="text-secondary">Please sign in</p>
+            </div>
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold">Username</label>
+                <input type="text" id="usernameInput" class="form-control" placeholder="Enter username">
+            </div>
+            <div class="mb-4 text-start">
+                <label class="form-label fw-bold">Password</label>
+                <input type="password" id="passwordInput" class="form-control" placeholder="••••••">
+            </div>
+            <button class="btn btn-primary w-100 py-2 fw-bold" onclick="attemptLogin()">Login</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-cog me-2"></i>System Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Monthly Target (Hours)</label>
+                        <input type="number" id="conf_target" class="form-control" value="208">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Working Days</label>
+                        <input type="number" id="conf_days" class="form-control" value="26">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Absence Penalty (Hours)</label>
+                        <input type="number" id="conf_penalty" class="form-control" value="2">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="salarySidebar" class="salary-sidebar">
+        <div class="sidebar-header">
+            <h5><i class="fas fa-calculator me-2"></i>Payroll Calculator</h5>
+            <button onclick="closeSidebar()" class="btn-close btn-close-white"></button>
+        </div>
+        <div class="sidebar-body">
+            <div class="emp-info-card">
+                <div class="emp-avatar" id="sb_avatar"></div>
+                <h5 id="sb_name" class="mb-1">Select Employee</h5>
+                <small class="text-white-50" id="sb_id">#---</small>
+                <div id="sb_badges" class="mt-2"></div>
+            </div>
+            <div class="stats-grid mt-4">
+                <div class="stat-item"><label>Days Worked</label><span id="sb_days">0</span></div>
+                <div class="stat-item"><label>Absent Days</label><span id="sb_absent" class="text-danger">0</span></div>
+                <div class="stat-item"><label>Total Hours</label><span id="sb_hours">0</span></div>
+                <div class="stat-item"><label>Balance (vs 208)</label><span id="sb_balance">0</span></div>
+            </div>
+            <hr class="border-secondary my-4">
+            <div class="form-group mb-3">
+                <label class="form-label text-white">Basic Salary (EGP)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-white border-secondary">EGP</span>
+                    <input type="number" id="sb_basic_salary" class="form-control bg-dark text-white border-secondary" placeholder="0.00" onkeyup="calculateSidebar()">
+                </div>
+            </div>
+            <div class="results-box mt-4">
+                <div class="d-flex justify-content-between mb-2"><span class="text-white-50">Hourly Rate</span><span id="sb_rate" class="fw-bold">0.00</span></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-white-50">Variable Pay</span><span id="sb_variable" class="fw-bold">0.00</span></div>
+                <div class="total-row mt-3 pt-3 border-top border-secondary d-flex justify-content-between"><span class="h5 mb-0">Net Salary</span><span id="sb_net" class="h5 mb-0 text-success">0.00</span></div>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <button class="btn btn-primary w-100" onclick="printSidebarReport()"><i class="fas fa-print me-2"></i> Print Slip</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Print Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" id="reportContent"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-2"></i> Confirm Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar fixed-top custom-navbar">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <img class="logo-box" src="logo/WhatsApp Image 2025-12-22 at 2.52.42 AM.jpeg" alt="logo">
+                <span class="brand-text ms-2">Workpulse</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center rounded px-2 py-1 d-none d-md-flex" style="border: 1px solid var(--border-color);">
+                    <select id="archiveSelector" class="form-select form-select-sm border-0 bg-transparent" style="width: 140px; cursor: pointer; box-shadow: none; color: var(--text-color);" onchange="loadArchive(this.value)">
+                        <option value="current">📂 Current</option>
+                    </select>
+                    <button id="deleteArchiveBtn" class="btn btn-sm text-danger ms-1 d-none" onclick="deleteArchivedMonth()" title="Delete Archive">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <button class="nav-theme-btn ms-2" onclick="openSettings()" title="Settings"><i class="fas fa-cog"></i></button>
+                <button class="nav-theme-btn" id="themeToggle" title="Toggle Theme"><i class="fas fa-moon"></i></button>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+            <div class="header-title">
+                <h1>Attendance Dashboard</h1>
+                <p class="header-subtitle" id="configDisplay">Target: 208 Hours | Days: 26 | Penalty: 2 Hours</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="archiveBtn" class="btn btn-outline-primary shadow-sm d-none" onclick="archiveCurrentMonth()">
+                    <i class="fas fa-save me-2"></i> Save Month
+                </button>
+                <button id="clearBtn" class="btn btn-outline-danger shadow-sm d-none" onclick="clearData()">
+                    <i class="fas fa-trash-alt me-2"></i> Clear
+                </button>
+                <button id="uploadBtn" class="btn btn-primary shadow-sm" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-upload me-2"></i> Upload File
+                </button>
+            </div>
+        </div>
+
+        <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept=".csv, .xls, .xlsx" hidden>
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <h4>Upload Attendance File</h4>
+            <p style="color: var(--secondary-text)">Supports: Processed (Time long) OR Raw Data (C/In, C/Out)</p>
+            <p class="small text-muted mt-2">Note: Data is Auto-Saved</p>
+        </div>
+
+        <div id="dashboardContent" class="d-none">
+            <div class="row mb-4">
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box icon-blue"><i class="fas fa-users"></i></div><h5 class="text-secondary">Total Employees</h5><h2 id="totalEmployees">0</h2></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box icon-green"><i class="fas fa-clock"></i></div><h5 class="text-secondary">Total Overtime</h5><h2 id="totalOvertimeDisplay">0:00</h2></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="icon-box icon-red"><i class="fas fa-exclamation-circle"></i></div><h5 class="text-secondary">Total Deficit</h5><h2 id="totalDeficitDisplay">0:00</h2></div></div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-8"><div class="stat-card h-100"><h5 class="mb-3 fw-bold">Top Overtime Employees</h5><div class="chart-container"><canvas id="barChart"></canvas></div></div></div>
+                <div class="col-md-4"><div class="stat-card h-100"><h5 class="mb-3 fw-bold">Status Overview</h5><div class="chart-container"><canvas id="pieChart"></canvas></div></div></div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3 table-controls">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary active-filter" onclick="filterData('all', this)">All</button>
+                    <button class="btn btn-outline-success" onclick="filterData('overtime', this)">Overtime</button>
+                    <button class="btn btn-outline-danger" onclick="filterData('deficit', this)">Deficit</button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search name or ID..." onkeyup="searchTable()">
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary text-white" onclick="printMasterSheet()">
+                        <i class="fas fa-print me-2"></i> Master Sheet
+                    </button>
+                    <button class="btn btn-success text-white" onclick="exportTableToExcel('resultTable')">
+                        <i class="fas fa-file-excel me-2"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="resultTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Days</th>
+                                <th>Total Hours</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <div class="container"><p class="mb-0">Developed by <strong>Ali Diaa</strong> for <strong>Brandy Foods</strong> &copy; 2025-2026</p></div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="index.js"></script>
+</body>
+</html>
