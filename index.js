@@ -71,9 +71,7 @@ document.getElementById('passwordInput').addEventListener('keypress', (e) => { i
    ========================================= */
 function openSettings() { new bootstrap.Modal(document.getElementById('settingsModal')).show(); }
 
-// --- FIXED FUNCTION: Handles 0 correctly ---
 function saveSettings() {
-    // Helper function to accept 0 as a valid number
     const getVal = (id, def) => {
         const val = parseFloat(document.getElementById(id).value);
         return isNaN(val) ? def : val;
@@ -88,7 +86,7 @@ function saveSettings() {
     
     if(allEmployees.length > 0) { 
         finalizeProcessing(allEmployees); 
-        Swal.fire('Saved', 'Recalculated with new rules', 'success'); 
+        Swal.fire('Saved', 'Recalculated', 'success'); 
     }
     bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
 }
@@ -236,9 +234,11 @@ function processProcessedData(data) {
     data.forEach(row => {
         const id = row['AC-No.'] || row['AC-No'] || row['No'];
         if (id && row['Time long']) {
-            if (!map[id]) map[id] = { id: id, name: fixArabicEncoding(row['Name']), totalHours: 0, dates: new Set() };
-            map[id].totalHours += timeStringToDecimal(row['Time long']);
+            if (!map[id]) map[id] = { id: id, name: fixArabicEncoding(row['Name']), totalHours: 0, dates: new Set(), logs: [] };
+            const hours = timeStringToDecimal(row['Time long']);
+            map[id].totalHours += hours;
             map[id].dates.add(row['Date']);
+            map[id].logs.push({ date: row['Date'], hours: hours });
         }
     });
     finalizeProcessing(Object.values(map).map(e => ({...e, datesCount: e.dates.size})));
@@ -257,19 +257,25 @@ function processRawData(data) {
     Object.keys(group).forEach(id => {
         const emp = group[id];
         emp.events.sort((a, b) => a.time - b.time);
-        let total = 0, dates = new Set();
+        let total = 0, dates = new Set(), logs = [];
         for (let i = 0; i < emp.events.length; i++) {
             if (emp.events[i].state === 'C/In') {
                 for (let j = i+1; j < emp.events.length; j++) {
                     if (emp.events[j].state === 'C/Out') {
                         const diff = (emp.events[j].time - emp.events[i].time) / 36e5;
-                        if (diff > 0 && diff < 24) { total += diff; dates.add(emp.events[i].time.toDateString()); i = j; }
+                        if (diff > 0 && diff < 24) { 
+                            total += diff; 
+                            const dateStr = emp.events[i].time.toLocaleDateString('en-GB');
+                            dates.add(dateStr); 
+                            logs.push({ date: dateStr, hours: diff });
+                            i = j; 
+                        }
                         break;
                     }
                 }
             }
         }
-        if (total > 0 || dates.size > 0) map[id] = { id: id, name: emp.name, totalHours: total, datesCount: dates.size };
+        if (total > 0 || dates.size > 0) map[id] = { id: id, name: emp.name, totalHours: total, datesCount: dates.size, logs: logs };
     });
     finalizeProcessing(Object.values(map));
 }
@@ -284,7 +290,8 @@ function finalizeProcessing(arr) {
         return {
             ...e, daysWorked: days, daysAbsent: absent, balance: balance,
             netAmount: Math.abs(balance),
-            status: balance > 0.01 ? 'overtime' : (balance < -0.01 ? 'deficit' : 'balanced')
+            status: balance > 0.01 ? 'overtime' : (balance < -0.01 ? 'deficit' : 'balanced'),
+            logs: e.logs || []
         };
     });
     localStorage.setItem('bf_data', JSON.stringify(allEmployees));
@@ -337,6 +344,7 @@ function renderDashboard(data) {
     updateCharts(data);
 }
 
+// --- MASTER SHEET PRINT ---
 function printMasterSheet() {
     if(!allEmployees.length) return Swal.fire('No Data', 'Upload data first', 'warning');
     
@@ -360,6 +368,7 @@ function printMasterSheet() {
         `;
     });
 
+    // FIXED: Logo Path Updated
     const html = `
         <div class="landscape-sheet">
             <div class="text-center mb-4 pb-2 border-bottom border-dark">
@@ -425,6 +434,25 @@ function openSidebar(empId) {
     const balEl = document.getElementById('sb_balance');
     balEl.innerText = (emp.status === 'deficit' ? '-' : '+') + decimalToTimeString(emp.netAmount);
     balEl.className = emp.status === 'deficit' ? 'text-danger fw-bold' : 'text-success fw-bold';
+    
+    // --- Log Render (FIXED COLORS) ---
+    const logBody = document.getElementById('sb_log_body');
+    logBody.innerHTML = '';
+    const sortedLogs = (emp.logs || []).sort((x, y) => new Date(x.date) - new Date(y.date)); 
+
+    if (sortedLogs.length > 0) {
+        sortedLogs.forEach(log => {
+            const h = decimalToTimeString(log.hours);
+            const color = log.hours < 8 ? '#ef4444' : (log.hours > 8 ? '#10b981' : '#fff');
+            
+            // Fixed: Changed text-white-50 to text-white for visibility
+            const row = `<tr><td class="ps-3 text-white">${log.date}</td><td class="text-end pe-3 fw-bold" style="color: ${color}">${h}</td></tr>`;
+            logBody.innerHTML += row;
+        });
+    } else {
+        logBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted p-3">No logs available</td></tr>';
+    }
+
     document.getElementById('sb_basic_salary').value = '';
     document.getElementById('sb_rate').innerText = '0.00';
     document.getElementById('sb_variable').innerText = '0.00';
@@ -460,6 +488,7 @@ function printSidebarReport() {
     const date = new Date().toLocaleDateString('en-GB');
     let statusColor = emp.status === 'overtime' ? 'green' : (emp.status === 'deficit' ? 'red' : 'black');
 
+    // FIXED: Logo Path Updated
     const html = `
         <div class="payslip-container a4-format">
             <div class="payslip-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-2 border-dark">
@@ -492,6 +521,60 @@ function printSidebarReport() {
     `;
     document.getElementById('reportContent').innerHTML = html;
     new bootstrap.Modal(document.getElementById('reportModal')).show();
+}
+
+/* =========================================
+   5. BACKUP & RESTORE SYSTEM
+   ========================================= */
+function exportBackup() {
+    const backup = {
+        config: localStorage.getItem('bf_config'),
+        data: localStorage.getItem('bf_data'),
+        archives: localStorage.getItem('bf_archives'),
+        theme: localStorage.getItem('theme'),
+        date: new Date().toISOString()
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "Workpulse_Backup_" + new Date().toISOString().slice(0,10) + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    
+    Swal.fire({ icon: 'success', title: 'Backup Downloaded', text: 'Keep this file safe!', timer: 2000, showConfirmButton: false });
+}
+
+function importBackup(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const backup = JSON.parse(e.target.result);
+            if (!backup.date) throw new Error("Invalid Backup File");
+
+            if(backup.config) localStorage.setItem('bf_config', backup.config);
+            if(backup.data) localStorage.setItem('bf_data', backup.data);
+            if(backup.archives) localStorage.setItem('bf_archives', backup.archives);
+            if(backup.theme) localStorage.setItem('theme', backup.theme);
+
+            Swal.fire({
+                title: 'Restore Successful!',
+                text: 'System will reload to apply changes.',
+                icon: 'success',
+                confirmButtonText: 'Reload Now'
+            }).then(() => {
+                location.reload();
+            });
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Corrupt File', text: 'Cannot restore from this file.' });
+        }
+    };
+    reader.readAsText(file);
+    input.value = '';
 }
 
 function clearData() { 

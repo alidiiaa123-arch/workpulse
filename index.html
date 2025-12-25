@@ -53,6 +53,21 @@
                         <label class="form-label fw-bold">Absence Penalty (Hours)</label>
                         <input type="number" id="conf_penalty" class="form-control" value="2">
                     </div>
+
+                    <hr class="my-4">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-database me-2"></i>Data Management</h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary w-50" onclick="exportBackup()">
+                            <i class="fas fa-download me-2"></i> Backup Data
+                        </button>
+                        <button class="btn btn-outline-warning w-50" onclick="document.getElementById('restoreInput').click()">
+                            <i class="fas fa-upload me-2"></i> Restore Data
+                        </button>
+                        <input type="file" id="restoreInput" accept=".json" hidden onchange="importBackup(this)">
+                    </div>
+                    <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+                        * Backup saves Archive, Current Data & Settings.
+                    </small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -74,13 +89,34 @@
                 <small class="text-white-50" id="sb_id">#---</small>
                 <div id="sb_badges" class="mt-2"></div>
             </div>
+            
             <div class="stats-grid mt-4">
                 <div class="stat-item"><label>Days Worked</label><span id="sb_days">0</span></div>
                 <div class="stat-item"><label>Absent Days</label><span id="sb_absent" class="text-danger">0</span></div>
                 <div class="stat-item"><label>Total Hours</label><span id="sb_hours">0</span></div>
-                <div class="stat-item"><label>Balance (vs 208)</label><span id="sb_balance">0</span></div>
+                <div class="stat-item"><label>Balance (vs Target)</label><span id="sb_balance">0</span></div>
             </div>
+
+            <div class="mt-4">
+                <h6 class="text-white border-bottom border-secondary pb-2 mb-2" style="font-size: 0.9rem;">
+                    <i class="fas fa-list-ul me-2"></i>Attendance Log
+                </h6>
+                <div class="attendance-log-container" style="max-height: 150px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <table class="table table-sm mb-0 text-white" style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th class="ps-3 text-white-50" style="border-bottom: 1px solid rgba(255,255,255,0.1);">Date</th>
+                                <th class="text-end pe-3 text-white-50" style="border-bottom: 1px solid rgba(255,255,255,0.1);">Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sb_log_body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
             <hr class="border-secondary my-4">
+
             <div class="form-group mb-3">
                 <label class="form-label text-white">Basic Salary (EGP)</label>
                 <div class="input-group">
@@ -226,6 +262,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="index.js"></script>
+    <script src="index.js?v=4"></script>
 </body>
 </html>

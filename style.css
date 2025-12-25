@@ -104,7 +104,6 @@ body.sidebar-open .dashboard-container { margin-right: 350px; transition: margin
 
 @media print {
     @page { size: auto; margin: 5mm; }
-    /* Class for Landscape */
     @page.landscape { size: landscape; }
     
     body * { visibility: hidden; }
